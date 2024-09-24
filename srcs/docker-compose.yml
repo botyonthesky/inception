@@ -1,0 +1,69 @@
+version: '3'
+
+services:
+
+  mariadb:
+    container_name: mariadb                   # container name
+    networks:
+      - inception                               # to which network it belongs
+    build:
+      context:  requirements/mariadb            # whereis the docker file
+      dockerfile: Dockerfile                    # dockerfile name
+    env_file: .env                            # environnement file
+    volumes:                                  # volume build in the container
+    - mariadb:/var/lib/mysql                  # location in the container
+    restart:  unless-stopped                  # restart until stop
+    expose:
+      - "3306"
+
+  nginx:
+    container_name: nginx
+    volumes:
+      - wordpress:/var/www/wordpress
+    networks:
+      - inception
+    depends_on:                               # do not start NGINX until WordPress has not start
+      - wordpress
+    build:
+      context:  requirements/nginx
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "443:443"                               # specify the port who will be expose on vm
+    restart: on-failure                       # this containers will restart only if he crash
+
+
+  wordpress:
+    container_name: wordpress
+    env_file: .env
+    volumes:
+    - wordpress:/var/www/wordpress
+    networks:
+      - inception
+    build:
+      context:  requirements/wordpress
+      dockerfile: Dockerfile
+    depends_on:                               # WordPress will start only after MariaDB
+      - mariadb
+    restart: on-failure
+    expose:
+      - "9000"
+
+
+volumes:
+  wordpress:
+    driver: local                                       # store the volume on local
+    driver_opts:
+      type: 'none'                                        # no type specified
+      o:  'bind'
+      device: /mnt/nfs/homes/tmaillar/data/wordpress   # where to store the dir on local
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o:  bind                                        # bind are volumes that mount on a host path, and can be modified by other process outside dockers
+      device: /mnt/nfs/homes/tmaillar/data/mariadb
+
+networks:
+    inception:
+      driver: bridge                                    # bridge specify to docker to auto install rule for the 3 container can communicate
