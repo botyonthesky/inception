@@ -4,13 +4,13 @@ FROM debian:buster
 # update and install nginx and vim
 RUN apt update && apt upgrade -y
 RUN apt install nginx -y
-RUN apt install vim -y
-
-# dir for certif and key
-RUN mkdir -p /etc/nginx/ssl
+# RUN apt install vim -y
 
 # tool for manage certif ssl (openssl)
 RUN apt install openssl -y
+
+# dir for certif and key
+RUN mkdir -p /etc/nginx/ssl
 
 # generate certif ssl (tool ssl for certif TSL)
 # "req" for auto-sign certif
@@ -18,13 +18,13 @@ RUN apt install openssl -y
 # "-nodes" for certif without password
 # "-out" "-keyout" for store certif and key
 # "-subj" for pre fill certif info
-RUN openssl req -x509 -nodes \
+RUN openssl req -newkey rsa:4096 -days 365 -x509 -nodes \
 -out /etc/nginx/ssl/inception.crt \
 -keyout /etc/nginx/ssl/inception.key \
 -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=tmaillar.42.fr/UID=tmaillar"
 
 # dir for store config file de nginx
-RUN mkdir -p /var/run/nginx
+# RUN mkdir -p /var/run/nginx
 
 # storage of nginx config
 COPY conf/nginx.conf /etc/nginx/nginx.conf

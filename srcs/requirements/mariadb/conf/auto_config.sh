@@ -9,7 +9,6 @@ mysql -e "CREATE DATABASE IF NOT EXISTS \ '${SQL_DATABASE}\';"
 # user creation with name and pass, who are store in .env
 mysql -e "CREATE USER IF NOT EXISTS \'${SQL_USER}\'@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';"
 
-
 # give the privileges to this user
 mysql -e "GRANT ALL PRIVILEGES ON \'${SQL_DATABASE}\'.* TO \'${SQL_USER}\'@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
 

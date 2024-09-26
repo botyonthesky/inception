@@ -19,11 +19,11 @@ RUN wget https://fr.wordpress.org/wordpress-6.6.2-fr_FR.tar.gz -P /var/www
 # go on dir and decompress it
 RUN cd /var/www && tar -xzf wordpress-6.6.2-fr_FR.tar.gz && rm wordpress-6.6.2-fr_FR.tar.gz
 
-# give privileges to root for write in the dir
-RUN chown -R root:root /var/www/wordpress
-
 # copy of php conf
 COPY ./conf/php.conf /etc/php/7.3/fpm/pool.d/www.conf
+
+# give privileges to root for write in the dir
+RUN chown -R root:root /var/www/wordpress
 
 # install the CLI
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
