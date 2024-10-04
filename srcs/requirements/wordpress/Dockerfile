@@ -1,5 +1,5 @@
 #FROM : Witch OS to run
-FROM debian:buster
+FROM debian:bullseye
 
 # like usual
 RUN apt-get update && apt-get upgrade -y

@@ -1,13 +1,5 @@
-
 services:
-
   mariadb:
-    image: mariadb
-    # environment:
-    #   MARIADB_ROOT_PASSWORD: ${SQL_ROOT_PASSWORD}
-    #   MARIADB_DATABASE: ${SQL_DATABASE}
-    #   MARIADB_USER: ${SQL_USER}
-    #   MARIADB_PASSWORD: ${SQL_PASSWORD}
     container_name: mariadb                   # container name
     volumes:                                  # volume build in the container
       - mariadb:/var/lib/mysql
@@ -22,7 +14,6 @@ services:
       - "3306"
 
   nginx:
-    image: nginx
     container_name: nginx
     volumes:
       - wordpress:/var/www/wordpress
@@ -40,7 +31,6 @@ services:
 
 
   wordpress:
-    image: wordpress
     container_name: wordpress
     env_file: .env
     volumes:
@@ -59,19 +49,17 @@ services:
 
 volumes:
   wordpress:
-    # external: true
     driver: local                                       # store the volume on local
     driver_opts:
-      type: none                                        # no type specified
-      o:  bind
-      device: /mnt/nfs/homes/tmaillar/data/wordpress   # where to store the dir on local
+      type: 'none'                                        # no type specified
+      o:  'bind'
+      device: '/home/tmaillar/data/wordpress'   # where to store the dir on local
   mariadb:
-    # external: true
     driver: local
     driver_opts:
-      type: none
-      o:  bind                                        # bind are volumes that mount on a host path, and can be modified by other process outside dockers
-      device: /mnt/nfs/homes/tmaillar/data/mariadb
+      type: 'none'
+      o:  'bind'                                        # bind are volumes that mount on a host path, and can be modified by other process outside dockers
+      device: '/home/tmaillar/data/mariadb'
 
 networks:
     inception:

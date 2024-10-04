@@ -1,5 +1,5 @@
 #FROM : Witch OS to run
-FROM debian:buster
+FROM debian:bullseye
 
 # update and install mariadb
 RUN apt update -y
