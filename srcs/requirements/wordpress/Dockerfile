@@ -1,41 +1,38 @@
-#FROM : Witch OS to run
-FROM debian:bullseye
+FROM alpine:3.19
 
-# like usual
-RUN apt-get update && apt-get upgrade -y
+# Install necessary packages
+RUN apk update && apk add --no-cache \
+	curl \
+	mariadb-client \
+	php \
+	php-fpm \
+	php-curl \
+	php-mysqli \
+	php-phar \
+	php-mbstring
 
-# install wget for WP
-RUN apt-get -y install wget 
 
-# install php7.3 with dependencies for WP
-RUN apt-get install -y php7.3\
-		php-fpm\
-		php-mysql\
-		mariadb-client
+RUN mkdir -p /var/www/wordpress /run/php
 
-# use wget for WP install, -P for location ("/var/www" use in NGINX)
-RUN wget https://fr.wordpress.org/wordpress-6.6.2-fr_FR.tar.gz -P /var/www
+RUN curl -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x /usr/local/bin/wp
 
-# go on dir and decompress it
-RUN cd /var/www && tar -xzf wordpress-6.6.2-fr_FR.tar.gz && rm wordpress-6.6.2-fr_FR.tar.gz
+RUN addgroup -S nginx && adduser -S nginx -G nginx
 
-# copy of php conf
-COPY ./conf/php.conf /etc/php/7.3/fpm/pool.d/www.conf
+#Configure php-fpm
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = wordpress:9000/' /etc/php82/php-fpm.d/www.conf
 
-# give privileges to root for write in the dir
-RUN chown -R root:root /var/www/wordpress
+# Expose port
+EXPOSE 9000
 
-# install the CLI
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+# Copy the custom initialization script to handle environment variables
+COPY conf/auto_config.sh /usr/local/bin/
 
-# give the right
-RUN chmod +x wp-cli.phar
+# Ensure the script is executable
+RUN chmod +x /usr/local/bin/auto_config.sh
 
-# move into /bin
-RUN mv wp-cli.phar /usr/local/bin/wp
+# Start wordpress with initialization script
+ENTRYPOINT ["/usr/local/bin/auto_config.sh"]
 
-# copy of .sh
-COPY ./conf/auto_config.sh auto_config.sh
-
-# execute auto-config 
-ENTRYPOINT ["bash", "auto_config.sh"]
+# Start PHP-FPM
+CMD ["php-fpm82", "-F"]

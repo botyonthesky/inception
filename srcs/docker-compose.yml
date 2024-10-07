@@ -5,9 +5,7 @@ services:
       - mariadb:/var/lib/mysql
     networks:
       - inception                               # to which network it belongs
-    build:
-      context:  requirements/mariadb            # whereis the docker file
-      dockerfile: Dockerfile                    # dockerfile name
+    build: requirements/mariadb            # whereis the docker file
     env_file: .env                            # environnement file
     restart:  on-failure                  # restart until stop
     expose:
@@ -21,12 +19,10 @@ services:
       - inception
     depends_on:                               # do not start NGINX until WordPress has not start
       - wordpress
-    build:
-      context:  requirements/nginx
-      dockerfile: Dockerfile
+    build: requirements/nginx
     env_file: .env
     ports:
-      - 443:443                               # specify the port who will be expose on vm
+      - "443:443"                               # specify the port who will be expose on vm
     restart: on-failure                       # this containers will restart only if he crash
 
 
@@ -37,9 +33,7 @@ services:
     - wordpress:/var/www/wordpress
     networks:
       - inception
-    build:
-      context:  requirements/wordpress
-      dockerfile: Dockerfile
+    build: requirements/wordpress
     depends_on:                               # WordPress will start only after MariaDB
       - mariadb
     restart: on-failure

@@ -1,16 +1,25 @@
 #FROM : Witch OS to run
-FROM debian:bullseye
+FROM alpine:3.19
 
 # update and install mariadb
-RUN apt update -y
-RUN apt upgrade -y
-RUN apt-get install mariadb-server -y
+RUN apk update && apk --no-cache add mariadb mariadb-client mariadb-server-utils
 
-# storage of mariabd config
-COPY conf/my.cnf /etc/mysql/mariabd.conf.d/50-server.cnf
 
-COPY conf/auto_config.sh /auto_config.sh
+RUN mkdir -p /run/mysqld /var/lib/mysql && chown -R mysql:mysql /run/mysqld /var/lib/mysql 
 
-ENTRYPOINT ["bash", "auto_config.sh"]
+COPY conf/my.cnf /etc/my.cnf
+
+#RUN mkdir -p /run/mysqld /var/lib/mysql && chown -R mysql:mysql /run/mysqld /var/lib/mysql
+RUN mariadb-install-db --user=mysql --datadir=/var/lib/mysql --skip-test-db
 
 EXPOSE 3306
+
+COPY tools/auto_config.sh /usr/local/bin/auto_config.sh
+
+RUN chmod +x /usr/local/bin/auto_config.sh
+
+ENTRYPOINT ["/usr/local/bin/auto_config.sh"]
+
+CMD ["mysqld", "--user=mysql", "--datadir=/var/lib/mysql", "--console"] 
+
+
