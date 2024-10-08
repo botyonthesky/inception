@@ -1,6 +1,13 @@
+#FROM : Witch OS to run
 FROM alpine:3.19
 
-# Install necessary packages
+# Update alpine
+# curl: for download WP-CLI
+# php-fpm: Extension for nginx server
+# php-curl: Extension php for HTTP request via curl
+# php-mysql: Extension php for MariaDB/mySQL
+# php-phar : Extension php for php archive (wp-cli)
+# php-mbstrring : Extension php for web site multilingual
 RUN apk update && apk add --no-cache \
 	curl \
 	mariadb-client \
@@ -12,11 +19,15 @@ RUN apk update && apk add --no-cache \
 	php-mbstring
 
 
+# Creates the directories needed to host WordPress and PHP-FPM
 RUN mkdir -p /var/www/wordpress /run/php
 
+# Use curl for download WP-CLI (+ add permissions)
 RUN curl -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x /usr/local/bin/wp
 
+# Creates a system group (-S option) named nginx. 
+# Groups are used to define shared permissions between users.
 RUN addgroup -S nginx && adduser -S nginx -G nginx
 
 #Configure php-fpm
